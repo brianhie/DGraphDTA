@@ -355,11 +355,13 @@ def create_dataset_for_5folds(dataset, fold=0):
     prots = []
     prot_keys = []
     drug_smiles = []
+    drug_names = []
     # smiles
     for d in ligands.keys():
         lg = Chem.MolToSmiles(Chem.MolFromSmiles(ligands[d]), isomericSmiles=True)
         drugs.append(lg)
         drug_smiles.append(ligands[d])
+        drug_names.append(d)
     # seqs
     for t in proteins.keys():
         prots.append(proteins[t])
@@ -370,7 +372,7 @@ def create_dataset_for_5folds(dataset, fold=0):
 
     rows, cols = np.where(np.isnan(affinity) == False)
     for pair_ind in range(len(rows)):
-        print('{}\t{}'.format(drugs[rows[pair_ind]],
+        print('{}\t{}'.format(drug_names[rows[pair_ind]],
                               prot_keys[cols[pair_ind]]))
     exit()
 
