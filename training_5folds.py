@@ -7,6 +7,7 @@ from gnn import GNNNet
 from utils import *
 from emetrics import *
 from data_process import create_dataset_for_5folds
+from test import calculate_metrics
 
 
 datasets = [ 'davis_full' ]
@@ -20,7 +21,7 @@ cross_validation_flag = True
 TRAIN_BATCH_SIZE = 512
 TEST_BATCH_SIZE = 512
 LR = 0.001
-NUM_EPOCHS = 2000
+NUM_EPOCHS = 50
 
 print('Learning rate: ', LR)
 print('Epochs: ', NUM_EPOCHS)
@@ -45,14 +46,13 @@ model_st = GNNNet.__name__
 loss_fn = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 for dataset in datasets:
-    train_data, valid_data = create_dataset_for_5folds(dataset, fold)
+    train_data, valid_data, quadA, quadB, quadC = create_dataset_for_5folds(dataset, fold)
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=TRAIN_BATCH_SIZE, shuffle=True,
                                                collate_fn=collate)
     valid_loader = torch.utils.data.DataLoader(valid_data, batch_size=TEST_BATCH_SIZE, shuffle=False,
                                                collate_fn=collate)
 
-    best_mse = 1000
-    best_test_mse = 1000
+    best_mse = None
     best_epoch = -1
     model_file_name = 'models/model_' + model_st + '_' + dataset + '_' + str(fold) + '.model'
 
@@ -62,10 +62,15 @@ for dataset in datasets:
         G, P = predicting(model, device, valid_loader)
         val = get_mse(G, P)
         print('valid result:', val, best_mse)
-        if val < best_mse:
+        if best_mse is None or val < best_mse:
             best_mse = val
             best_epoch = epoch + 1
             torch.save(model.state_dict(), model_file_name)
             print('rmse improved at epoch ', best_epoch, '; best_test_mse', best_mse, model_st, dataset, fold)
+            calculate_metrics(G, P, dataset)
+            calculate_metrics(G[quadA], P[quadA], dataset + ' (quadA)')
+            calculate_metrics(G[quadB], P[quadB], dataset + ' (quadB)')
+            calculate_metrics(G[quadC], P[quadC], dataset + ' (quadC)')
         else:
             print('No improvement since epoch ', best_epoch, '; best_test_mse', best_mse, model_st, dataset, fold)
+        sys.stdout.flush()

@@ -35,28 +35,23 @@ def load_model(model_path):
 
 
 def calculate_metrics(Y, P, dataset='davis'):
-    # aupr = get_aupr(Y, P)
-    cindex = get_cindex(Y, P)  # DeepDTA
-    cindex2 = get_ci(Y, P)  # GraphDTA
-    rm2 = get_rm2(Y, P)  # DeepDTA
     mse = get_mse(Y, P)
     pearson = get_pearson(Y, P)
     spearman = get_spearman(Y, P)
-    rmse = get_rmse(Y, P)
 
     print('metrics for ', dataset)
-    # print('aupr:', aupr)
-    print('cindex:', cindex)
-    print('cindex2', cindex2)
-    print('rm2:', rm2)
     print('mse:', mse)
     print('pearson', pearson)
+    print('spearman', spearman)
+
+    return
 
     result_file_name = 'results/result_' + model_st + '_' + dataset + '.txt'
     result_str = ''
     result_str += dataset + '\r\n'
-    result_str += 'rmse:' + str(rmse) + ' ' + ' mse:' + str(mse) + ' ' + ' pearson:' + str(
-        pearson) + ' ' + 'spearman:' + str(spearman) + ' ' + 'ci:' + str(cindex) + ' ' + 'rm2:' + str(rm2)
+    result_str += 'mse: ' + str(mse) + \
+                  ', pearson: ' + str(pearson) + \
+                  ', spearman: ' + str(spearman)
     print(result_str)
     open(result_file_name, 'w').writelines(result_str)
 
@@ -87,11 +82,11 @@ def plot_density(Y, P, fold=0, dataset='davis'):
 
 
 if __name__ == '__main__':
-    dataset = ['davis', 'kiba'][int(sys.argv[1])]  # dataset selection
+    dataset = 'davis_full'
     model_st = GNNNet.__name__
     print('dataset:', dataset)
 
-    cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[2])]  # gpu selection
+    cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[1])]  # gpu selection
     print('cuda_name:', cuda_name)
 
     TEST_BATCH_SIZE = 512

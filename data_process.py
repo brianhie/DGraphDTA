@@ -370,44 +370,57 @@ def create_dataset_for_5folds(dataset, fold=0):
         affinity = [-np.log10(y / 1e9) for y in affinity]
     affinity = np.asarray(affinity)
 
-    opts = ['train', 'valid']
     valid_train_count = 0
     valid_valid_count = 0
-    for opt in opts:
-        if opt == 'train':
-            rows, cols = np.where(np.isnan(affinity) == False)
-            rows, cols = rows[train_folds], cols[train_folds]
-            train_fold_entries = []
-            for pair_ind in range(len(rows)):
-                if not valid_target(prot_keys[cols[pair_ind]], dataset):  # ensure the contact and aln files exists
-                    continue
-                ls = []
-                ls += [drugs[rows[pair_ind]]]
-                ls += [prots[cols[pair_ind]]]
-                ls += [prot_keys[cols[pair_ind]]]
-                ls += [affinity[rows[pair_ind], cols[pair_ind]]]
-                train_fold_entries.append(ls)
-                valid_train_count += 1
 
-            csv_file = 'data/' + dataset + '_' + 'fold_' + str(fold) + '_' + opt + '.csv'
-            data_to_csv(csv_file, train_fold_entries)
-        elif opt == 'valid':
-            rows, cols = np.where(np.isnan(affinity) == False)
-            rows, cols = rows[valid_fold], cols[valid_fold]
-            valid_fold_entries = []
-            for pair_ind in range(len(rows)):
-                if not valid_target(prot_keys[cols[pair_ind]], dataset):
-                    continue
-                ls = []
-                ls += [drugs[rows[pair_ind]]]
-                ls += [prots[cols[pair_ind]]]
-                ls += [prot_keys[cols[pair_ind]]]
-                ls += [affinity[rows[pair_ind], cols[pair_ind]]]
-                valid_fold_entries.append(ls)
-                valid_valid_count += 1
+    rows, cols = np.where(np.isnan(affinity) == False)
+    rows, cols = rows[train_folds], cols[train_folds]
+    train_fold_entries = []
+    train_row_idxs = set()
+    train_col_idxs = set()
+    for pair_ind in range(len(rows)):
+        if not valid_target(prot_keys[cols[pair_ind]], dataset):  # ensure the contact and aln files exists
+            continue
+        ls = []
+        ls += [drugs[rows[pair_ind]]]
+        ls += [prots[cols[pair_ind]]]
+        ls += [prot_keys[cols[pair_ind]]]
+        ls += [affinity[rows[pair_ind], cols[pair_ind]]]
+        train_fold_entries.append(ls)
+        valid_train_count += 1
+        train_row_idxs.add(rows[pair_ind])
+        train_col_idxs.add(cols[pair_ind])
 
-            csv_file = 'data/' + dataset + '_' + 'fold_' + str(fold) + '_' + opt + '.csv'
-            data_to_csv(csv_file, valid_fold_entries)
+    csv_file = 'data/' + dataset + '_' + 'fold_' + str(fold) + '_train.csv'
+    data_to_csv(csv_file, train_fold_entries)
+
+    rows, cols = np.where(np.isnan(affinity) == False)
+    rows, cols = rows[valid_fold], cols[valid_fold]
+    valid_fold_entries = []
+    quadA, quadB, quadC = [], [], []
+    for pair_ind in range(len(rows)):
+        if not valid_target(prot_keys[cols[pair_ind]], dataset):
+            continue
+        ls = []
+        ls += [drugs[rows[pair_ind]]]
+        ls += [prots[cols[pair_ind]]]
+        ls += [prot_keys[cols[pair_ind]]]
+        ls += [affinity[rows[pair_ind], cols[pair_ind]]]
+        valid_fold_entries.append(ls)
+        valid_valid_count += 1
+        if rows[pair_ind] not in train_row_idxs and \
+           cols[pair_ind] not in train_col_idxs:
+            quadC.append(pair_ind)
+        elif rows[pair_ind] in train_row_idxs:
+            quadA.append(pair_ind)
+        elif cols[pair_ind] in train_col_idxs:
+            quadB.append(pair_ind)
+        else:
+            assert(False)
+
+    csv_file = 'data/' + dataset + '_' + 'fold_' + str(fold) + '_valid.csv'
+    data_to_csv(csv_file, valid_fold_entries)
+
     print('dataset:', dataset)
     # print('len(set(drugs)),len(set(prots)):', len(set(drugs)), len(set(prots)))
 
@@ -457,4 +470,4 @@ def create_dataset_for_5folds(dataset, fold=0):
     valid_dataset = DTADataset(root='data', dataset=dataset + '_' + 'train', xd=valid_drugs,
                                target_key=valid_prots_keys, y=valid_Y, smile_graph=smile_graph,
                                target_graph=target_graph)
-    return train_dataset, valid_dataset
+    return train_dataset, valid_dataset, quadA, quadB, quadC
