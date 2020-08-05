@@ -13,7 +13,7 @@ datasets = [ 'davis' ]
 
 cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[1])]
 print('cuda_name:', cuda_name)
-fold = 0
+fold = 1
 cross_validation_flag = True
 # print(int(sys.argv[3]))
 
