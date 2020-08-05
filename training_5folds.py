@@ -9,7 +9,7 @@ from emetrics import *
 from data_process import create_dataset_for_5folds
 
 
-datasets = [ 'davis' ]
+datasets = [ 'davis_full' ]
 
 cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[1])]
 print('cuda_name:', cuda_name)

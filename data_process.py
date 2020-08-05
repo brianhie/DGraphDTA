@@ -426,7 +426,6 @@ def create_dataset_for_5folds(dataset, fold=0):
         smile_graph[smile] = g
     # print(smile_graph['CN1CCN(C(=O)c2cc3cc(Cl)ccc3[nH]2)CC1']) #for test
 
-    # create target graph
     # print('target_key', len(target_key), len(set(target_key)))
     target_graph = {}
     for key in target_key:
