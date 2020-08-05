@@ -368,6 +368,12 @@ def create_dataset_for_5folds(dataset, fold=0):
         affinity = [-np.log10(y / 1e9) for y in affinity]
     affinity = np.asarray(affinity)
 
+    rows, cols = np.where(np.isnan(affinity) == False)
+    for pair_ind in range(len(rows)):
+        print('{}\t{}'.format(drugs[rows[pair_ind]],
+                              prot_keys[cols[pair_ind]]))
+    exit()
+
     opts = ['train', 'valid']
     valid_train_count = 0
     valid_valid_count = 0

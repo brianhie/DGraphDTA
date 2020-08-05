@@ -9,11 +9,11 @@ from emetrics import *
 from data_process import create_dataset_for_5folds
 
 
-datasets = [['davis', 'kiba'][int(sys.argv[1])]]
+datasets = [ 'davis' ]
 
-cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[2])]
+cuda_name = ['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3'][int(sys.argv[1])]
 print('cuda_name:', cuda_name)
-fold = [0, 1, 2, 3, 4][int(sys.argv[3])]
+fold = 0
 cross_validation_flag = True
 # print(int(sys.argv[3]))
 
