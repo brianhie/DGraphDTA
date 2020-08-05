@@ -1,7 +1,3 @@
-cuda_name: cuda:0
-Learning rate:  0.001
-Epochs:  2000
-GNNNet Loaded
 A-674563	AAK1
 A-674563	ABL1(E255K)
 A-674563	ABL1(F317I)
